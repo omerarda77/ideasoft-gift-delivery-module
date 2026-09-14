@@ -1,0 +1,230 @@
+{#
+  IdeaSoft Hediye Paketi, Teslim Tarihi ve Hediye Notu Modülü v1.0.1
+  Geliştiren: Midas Dijital E-Ticaret Danışmanlık
+
+  Bu dosyayı detail.twig içinde .product-cart-buttons bloğunun
+  hemen üstüne ekleyin veya include edin.
+#}
+
+{# ===================== MODÜL AYARLARI ===================== #}
+{% set giftModule = 'on' %}
+{% set standardGiftOption = 'on' %}
+{% set premiumGiftOption = 'on' %}
+{% set deliveryDateModule = 'on' %}
+{% set giftMessageModule = 'on' %}
+
+{# IdeaSoft Ürün Özelleştirme grubu ve alan ID'leri #}
+{% set customizationGroupId = 1 %}
+{% set deliveryDateFieldId = 1 %}
+{% set giftMessageFieldId = 2 %}
+
+{# Standart paket ürünü #}
+{% set standardGiftProductId = 1001 %}
+{% set standardGiftTitle = 'Standart hediye paketi' %}
+{% set standardGiftDescription = 'Siparişiniz özenle paketlenerek gönderilir.' %}
+{% set standardGiftPrice = '100,00 TL' %}
+{% set standardGiftUrl = '/urun/standart-hediye-paketi' %}
+{% set standardGiftImage = '' %}
+
+{# Premium paket ürünü #}
+{% set premiumGiftProductId = 1002 %}
+{% set premiumGiftTitle = 'Premium hediye paketi' %}
+{% set premiumGiftDescription = 'Siparişiniz premium kutuda özel olarak hazırlanır.' %}
+{% set premiumGiftPrice = '159,90 TL' %}
+{% set premiumGiftUrl = '/urun/premium-hediye-paketi' %}
+{% set premiumGiftImage = '' %}
+
+{# Tasarım #}
+{% set moduleAccentColor = '#dc2237' %}
+
+{% if giftModule == 'on' and product.id not in [standardGiftProductId, premiumGiftProductId] %}
+<style>
+    .md-gift-module,.md-gift-module *{box-sizing:border-box}
+    .md-gift-module{--md-accent:{{ moduleAccentColor }};width:100%;margin:0 0 14px;padding:14px;font-family:Arial,sans-serif;background:#fff;border:1px solid #e5e5e5;border-radius:12px}
+    .md-gift-toggle,.md-gift-choice{display:flex;align-items:flex-start;gap:10px;margin:0;cursor:pointer}
+    .md-gift-toggle{align-items:center;color:#202020;font-size:14px;font-weight:600;line-height:1.4}
+    .md-gift-module input[type="checkbox"],.md-gift-module input[type="radio"]{width:18px;height:18px;min-width:18px;margin:0;accent-color:var(--md-accent);cursor:pointer}
+    .md-gift-icon{display:flex;align-items:center;justify-content:center;width:34px;height:34px;min-width:34px;color:#fff;background:var(--md-accent);border-radius:9px}
+    .md-gift-icon svg{width:19px;height:19px}
+    .md-gift-copy,.md-gift-choice-copy{display:block;flex:1;min-width:0}
+    .md-gift-note{display:block;margin-top:2px;color:#777;font-size:12px;font-weight:400}
+    .md-gift-options{display:none;gap:10px;margin-top:13px;padding-top:13px;border-top:1px solid #eee}
+    .md-gift-module.is-open .md-gift-options{display:grid}
+    .md-gift-choice{padding:12px;color:#222;font-size:13px;background:#fafafa;border:1px solid #e4e4e4;border-radius:10px}
+    .md-gift-choice.is-selected{background:#fff8f9;border-color:var(--md-accent)}
+    .md-gift-image-link{display:block;width:72px;height:72px;min-width:72px;overflow:hidden;background:#fff;border:1px solid #ececec;border-radius:9px}
+    .md-gift-image{display:block;width:100%;height:100%;object-fit:cover;transition:transform .2s ease}
+    .md-gift-image-link:hover .md-gift-image{transform:scale(1.05)}
+    .md-gift-choice-title{display:block;font-weight:700;line-height:1.4}
+    .md-gift-choice-description{display:block;margin-top:4px;color:#777;font-size:12px;font-weight:400;line-height:1.45}
+    .md-gift-price{display:inline-block;margin-top:5px;color:var(--md-accent);font-weight:700}
+    .md-gift-view{margin-left:8px;color:#555;font-size:12px;font-weight:500;text-decoration:underline}
+    .md-gift-customization{margin-top:2px;padding:14px;background:#fff;border:1px solid #e4e4e4;border-radius:10px}
+    .md-gift-customization-title{margin-bottom:13px;color:#222;font-size:14px;font-weight:700}
+    .md-gift-field{margin-bottom:12px}
+    .md-gift-field:last-child{margin-bottom:0}
+    .md-gift-field label{display:block;margin-bottom:6px;color:#333;font-size:12px;font-weight:600}
+    .md-gift-field input,.md-gift-field textarea{display:block;width:100%;max-width:none;padding:10px 12px;color:#222;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:none;outline:none}
+    .md-gift-field input{min-height:42px}
+    .md-gift-field textarea{min-height:78px;resize:vertical}
+    .md-gift-field input:focus,.md-gift-field textarea:focus{border-color:var(--md-accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--md-accent) 10%,transparent)}
+    .md-gift-counter{display:block;margin-top:5px;color:#888;font-size:11px;text-align:right}
+    .md-gift-cart-trigger{display:none!important}
+    @media(max-width:767px){.md-gift-module{padding:12px}.md-gift-toggle{align-items:flex-start;font-size:13px}.md-gift-image-link{width:62px;height:62px;min-width:62px}}
+</style>
+
+<div class="md-gift-module"
+     data-md-gift-module
+     data-standard-id="{{ standardGiftProductId }}"
+     data-premium-id="{{ premiumGiftProductId }}">
+    <label class="md-gift-toggle" for="md-gift-enabled">
+        <input type="checkbox" id="md-gift-enabled" name="giftOptions" value="1" data-md-gift-toggle>
+        <span class="md-gift-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="18" height="13" rx="2"></rect>
+                <path d="M12 8v13"></path><path d="M3 12h18"></path>
+                <path d="M7.5 8C5.5 8 4 6.8 4 5.3 4 4 5 3 6.3 3 8.7 3 10.4 5.8 12 8"></path>
+                <path d="M16.5 8C18.5 8 20 6.8 20 5.3 20 4 19 3 17.7 3 15.3 3 13.6 5.8 12 8"></path>
+            </svg>
+        </span>
+        <span class="md-gift-copy">
+            Hediye paketi yaptırmak istiyorum.
+            <span class="md-gift-note">Paket seçeneklerinden birini seçebilirsiniz.</span>
+        </span>
+    </label>
+
+    <div class="md-gift-options" data-md-gift-options>
+        {% if standardGiftOption == 'on' %}
+        <label class="md-gift-choice" for="md-gift-standard">
+            <input type="radio" id="md-gift-standard" name="giftProducts" value="{{ standardGiftProductId }}" checked>
+            {% if standardGiftImage %}
+            <a class="md-gift-image-link" href="{{ standardGiftUrl }}" target="_blank" rel="noopener noreferrer">
+                <img class="md-gift-image" src="{{ standardGiftImage }}" alt="{{ standardGiftTitle }}" loading="lazy">
+            </a>
+            {% endif %}
+            <span class="md-gift-choice-copy">
+                <span class="md-gift-choice-title">{{ standardGiftTitle }}</span>
+                <span class="md-gift-choice-description">{{ standardGiftDescription }}</span>
+                <span class="md-gift-price">+{{ standardGiftPrice }}</span>
+                <a class="md-gift-view" href="{{ standardGiftUrl }}" target="_blank" rel="noopener noreferrer">Görüntüle</a>
+            </span>
+        </label>
+        {% endif %}
+
+        {% if premiumGiftOption == 'on' %}
+        <label class="md-gift-choice" for="md-gift-premium">
+            <input type="radio" id="md-gift-premium" name="giftProducts" value="{{ premiumGiftProductId }}"{% if standardGiftOption == 'off' %} checked{% endif %}>
+            {% if premiumGiftImage %}
+            <a class="md-gift-image-link" href="{{ premiumGiftUrl }}" target="_blank" rel="noopener noreferrer">
+                <img class="md-gift-image" src="{{ premiumGiftImage }}" alt="{{ premiumGiftTitle }}" loading="lazy">
+            </a>
+            {% endif %}
+            <span class="md-gift-choice-copy">
+                <span class="md-gift-choice-title">{{ premiumGiftTitle }}</span>
+                <span class="md-gift-choice-description">{{ premiumGiftDescription }}</span>
+                <span class="md-gift-price">+{{ premiumGiftPrice }}</span>
+                <a class="md-gift-view" href="{{ premiumGiftUrl }}" target="_blank" rel="noopener noreferrer">Görüntüle</a>
+            </span>
+        </label>
+        {% endif %}
+
+        {% if deliveryDateModule == 'on' or giftMessageModule == 'on' %}
+        <div class="md-gift-customization" data-md-gift-customization>
+            <div class="product-customization">
+                <div class="product-customization-group" data-group-id="{{ customizationGroupId }}">
+                    <div class="product-customization-group-title md-gift-customization-title">Teslimat ve Hediye Kartı Bilgileri</div>
+                    <form class="product-customization-form" data-group-id="{{ customizationGroupId }}" autocomplete="off">
+                        <div class="product-customization-group-content">
+                            {% if deliveryDateModule == 'on' %}
+                            <div class="product-customization-field md-gift-field" data-field-id="{{ deliveryDateFieldId }}" data-field-name="Teslim Tarihi">
+                                <label for="md-delivery-date">Teslim Tarihi</label>
+                                <input type="date" id="md-delivery-date" class="form-control" data-customization-name="custom_form_field_{{ deliveryDateFieldId }}" value="" data-required="0" disabled>
+                            </div>
+                            {% endif %}
+
+                            {% if giftMessageModule == 'on' %}
+                            <div class="product-customization-field md-gift-field" data-field-id="{{ giftMessageFieldId }}" data-field-name="Hediye Kartı Notu">
+                                <label for="md-gift-message">Hediye Kartı Notu</label>
+                                <textarea id="md-gift-message" class="form-control" data-customization-name="custom_form_field_{{ giftMessageFieldId }}" maxlength="250" rows="3" placeholder="Hediye kartına yazılacak mesajı girin..." data-required="0" disabled></textarea>
+                                <span class="md-gift-counter"><span data-md-note-count>0</span>/250</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <a href="javascript:void(0);" class="md-gift-cart-trigger" data-selector="add-to-cart" data-context="detail" data-product-id="{{ standardGiftProductId }}" data-md-gift-trigger aria-hidden="true" tabindex="-1"></a>
+</div>
+
+<script>
+(function(){
+    "use strict";
+    if(window.midasGiftDeliveryInstalled)return;
+    window.midasGiftDeliveryInstalled=true;
+    var pending=false;
+
+    function fields(module){return module.querySelectorAll('[data-md-gift-customization] input,[data-md-gift-customization] textarea,[data-md-gift-customization] select')}
+    function nativeFields(){return document.querySelectorAll('.product-list-block .product-customization-form input,.product-list-block .product-customization-form textarea,.product-list-block .product-customization-form select')}
+    function syncNativeField(sourceField){
+        if(!sourceField)return;
+        var fieldName=sourceField.getAttribute('data-customization-name')||sourceField.name;
+        if(!fieldName)return;
+        document.querySelectorAll('.product-list-block .product-customization-form [name="'+fieldName+'"]').forEach(function(nativeField){
+            nativeField.value=sourceField.value;
+            nativeField.dispatchEvent(new Event('input',{bubbles:true}));
+            nativeField.dispatchEvent(new Event('change',{bubbles:true}));
+        });
+    }
+    function sync(module){
+        var toggle=module.querySelector('[data-md-gift-toggle]');
+        var enabled=Boolean(toggle&&toggle.checked);
+        module.classList.toggle('is-open',enabled);
+        fields(module).forEach(function(field){field.disabled=!enabled});
+        module.querySelectorAll('.md-gift-choice').forEach(function(choice){
+            var radio=choice.querySelector('input[type="radio"]');
+            choice.classList.toggle('is-selected',Boolean(enabled&&radio&&radio.checked));
+        });
+    }
+
+    document.addEventListener('change',function(event){
+        var module=event.target.closest('[data-md-gift-module]');
+        if(module)sync(module);
+    });
+    document.addEventListener('input',function(event){
+        if(event.target.id==='md-gift-message'){
+            var counter=document.querySelector('[data-md-note-count]');
+            if(counter)counter.textContent=event.target.value.length;
+        }
+        if(event.target.id==='md-delivery-date'||event.target.id==='md-gift-message')syncNativeField(event.target);
+    });
+    document.addEventListener('click',function(event){
+        var link=event.target.closest('.md-gift-view,.md-gift-image-link');
+        if(link){event.stopPropagation();return}
+        var mainButton=event.target.closest('.add-to-cart-button[data-context="detail"]');
+        if(!mainButton||mainButton.hasAttribute('data-md-gift-trigger'))return;
+        var module=document.querySelector('[data-md-gift-module]');
+        if(!module)return;
+        var toggle=module.querySelector('[data-md-gift-toggle]');
+        var selected=module.querySelector('input[name="giftProducts"]:checked');
+        var trigger=module.querySelector('[data-md-gift-trigger]');
+        if(!toggle||!toggle.checked||!selected||!trigger||pending)return;
+        fields(module).forEach(syncNativeField);
+        pending=true;
+        trigger.setAttribute('data-product-id',selected.value);
+        window.setTimeout(function(){nativeFields().forEach(function(field){field.disabled=true})},50);
+        window.setTimeout(function(){
+            trigger.click();
+            window.setTimeout(function(){
+                nativeFields().forEach(function(field){field.disabled=false});
+                pending=false;
+            },1200);
+        },700);
+    },true);
+    document.querySelectorAll('[data-md-gift-module]').forEach(sync);
+})();
+</script>
+{% endif %}
